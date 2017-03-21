@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -77,8 +78,6 @@ public class WeatherService extends Service implements LocationListener {
 
             weatherThread.execute(url);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,8 +99,25 @@ public class WeatherService extends Service implements LocationListener {
             String data = sb.toString();
 
             JSONObject jsonObject = new JSONObject(data);
-            String weather = jsonObject.getJSONArray("list").getJSONObject(0).getJSONArray("weather").getJSONObject(0).getString("main");
+            String weather = jsonObject.getJSONArray("list").getJSONObject(0).getJSONArray("weather").getJSONObject(0).getString("icon");
             Log.v("VERBOSE", weather);
+
+            SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+
+            int minute;
+            if(weather.equals("01n")){
+                Log.v("VERBOSE","晴れ");
+                minute = pref.getInt("Sunny",0);
+            }else if(weather.equals("02n") || weather.equals("03n") || weather.equals("04n") || weather.equals("50n")){
+                Log.v("VERBOSE","曇り");
+                minute = pref.getInt("Cloudy",0);
+            }else if(weather.equals("13n")){
+                Log.v("VERBOSE","雪");
+                minute = pref.getInt("Snowy",0);
+            }else{
+                Log.v("VERBOSE","雨");
+                minute = pref.getInt("Rainy",0);
+            }
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(System.currentTimeMillis());

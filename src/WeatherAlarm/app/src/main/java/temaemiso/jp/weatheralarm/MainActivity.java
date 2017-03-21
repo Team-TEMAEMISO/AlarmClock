@@ -1,28 +1,32 @@
 package temaemiso.jp.weatheralarm;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
-    private static final int bid1 = 1;
-    private static final int bid2 = 2;
-
-    private Button button1, button2, button3;
-    private TextView textView;
-    private int year, month, date, hour, minute, second, msecond;
+    ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,37 +42,219 @@ public class MainActivity extends AppCompatActivity {
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
         }
-        // 10秒で繰り返しアラーム
-        button1 = (Button)this.findViewById(R.id.button1);
-        button1.setOnClickListener(new View.OnClickListener() {
+
+        ListView listView = (ListView)findViewById(R.id.listView);
+
+        createData();
+
+        listView.setAdapter(new SimpleAdapter(this,list,R.layout.listview_alarm,
+                new String[]{"Timer",
+                        "SunnyView",
+                        "SunnyNumber",
+                        "CloudyView",
+                        "CloudyNumber",
+                        "RainyView",
+                        "RainyNumber",
+                        "SnowyView",
+                        "SnowyNumber",
+                        "Switch"},
+                new int[]{R.id.Timer,
+                        R.id.SunnyView,
+                        R.id.SunnyNumber,
+                        R.id.CloudyView,
+                        R.id.CloudyNumber,
+                        R.id.RainyView,
+                        R.id.RainyNumber,
+                        R.id.SnowyView,
+                        R.id.SnowyNumber,
+                        R.id.switch1}));
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
-            public void onClick(View v) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                // 5秒後に設定
-                calendar.add(Calendar.SECOND, 5);
-
-                Intent intent = new Intent(getApplicationContext(), WeatherService.class);
-                intent.putExtra("intentId", 1);
-                // PendingIntentが同じ物の場合は上書きされてしまうので requestCode で区別する
-                PendingIntent pending = PendingIntent.getService(getApplicationContext(), bid1, intent, 0);
-
-                // アラームをセットする
-                AlarmManager am = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
-                // 約10秒で 繰り返し
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
-
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), "ALARM 1", Toast.LENGTH_SHORT).show();
-
-                // 無理やりですが、アプリを一旦終了します。この方法はバックグラウンドに移行させるための方便で推奨ではありません
-                close();
-
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivityForResult(new Intent(MainActivity.this,SettingsActivity.class),1);
             }
         });
     }
 
-    private void close(){
-        finish();
+    private void createData() {
+        for(int n=0;n<5;n++){
+            HashMap<String,Object> data = new HashMap<String,Object>();
+            data.put("Timer","AM11:59");
+            data.put("SunnyView",R.mipmap.ic_launcher);
+            data.put("SunnyNumber","0");
+            data.put("CloudyView",R.mipmap.ic_launcher);
+            data.put("CloudyNumber",n);
+            data.put("RainyView",R.mipmap.ic_launcher);
+            data.put("RainyNumber","15");
+            data.put("SnowyView",R.mipmap.ic_launcher);
+            data.put("SnowyNumber","30");
+            data.put("Switch",true);
+            list.add(data);
+        }
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//
+//        switch1 = (Switch)this.findViewById(R.id.switch1);
+//        if(switch1.isChecked()){
+//
+//            ToggleButton sunday = (ToggleButton)this.findViewById(R.id.sunday);
+//            ToggleButton monday = (ToggleButton)this.findViewById(R.id.monday);
+//            ToggleButton tuesday = (ToggleButton)this.findViewById(R.id.tuesday);
+//            ToggleButton wednesday = (ToggleButton)this.findViewById(R.id.wednesday);
+//            ToggleButton thursday = (ToggleButton)this.findViewById(R.id.thursday);
+//            ToggleButton friday = (ToggleButton)this.findViewById(R.id.friday);
+//            ToggleButton saturday = (ToggleButton)this.findViewById(R.id.saturday);
+//
+//            Intent intent = new Intent(getApplicationContext(), WeatherService.class);
+//            intent.putExtra("intentId", 1);
+//            // PendingIntentが同じ物の場合は上書きされてしまうので requestCode で区別する
+//            PendingIntent pending = PendingIntent.getService(getApplicationContext(), bid1, intent, 0);
+//
+//            // アラームをセットする
+//            AlarmManager am = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
+//
+//            if(sunday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week - 1;
+//                if(targetday <= 0) targetday += 7;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//
+//            if(monday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week - 2;
+//                if(targetday <= 0) targetday += 7;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//
+//            if(tuesday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week - 3;
+//                if(targetday <= 0) targetday += 7;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//
+//            if(wednesday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week - 4;
+//                if(targetday <= 0) targetday += 7;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//
+//            if(thursday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week - 5;
+//                if(targetday <= 0) targetday += 7;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//
+//            if(friday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week - 6;
+//                if(targetday <= 0) targetday += 7;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//
+//            if(saturday.isChecked()){
+//
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTimeInMillis(System.currentTimeMillis());
+//                int week = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//                int targetday = week;
+//
+//                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+//                calendar.set(Calendar.HOUR_OF_DAY,0);
+//                calendar.set(Calendar.MINUTE,0);
+//                calendar.set(Calendar.SECOND,0);
+//
+//                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+//
+//                // トーストで設定されたことをを表示
+//                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
 }
