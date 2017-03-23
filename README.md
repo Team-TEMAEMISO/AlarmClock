@@ -7,7 +7,7 @@
 ---
 
 - 言語　：Java8  
-- ツール：Android Studio2.2.3
+- ツール：Android Studio2.3
 
 
 ToDo
