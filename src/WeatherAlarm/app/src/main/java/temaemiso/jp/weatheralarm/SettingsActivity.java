@@ -1,25 +1,28 @@
 package temaemiso.jp.weatheralarm;
 
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements RoopSettingFragment.OnFragmentInteractionListener {
 
     ArrayList<HashMap<String,String>> list = new ArrayList<HashMap<String,String>>();
     HashMap<String,String> data1;
     HashMap<String,String> data2;
     SimpleAdapter adapter;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,8 +78,12 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                     );
                     listDlg.create().show();
-                }else{
-                    startActivityForResult(new Intent(SettingsActivity.this,SettingsActivity.class),1);
+                }else if(position == 1){
+                    Fragment fragment = new RoopSettingFragment();
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.add(R.id.contents, fragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
                 }
             }
         });
@@ -91,5 +98,10 @@ public class SettingsActivity extends AppCompatActivity {
         data2.put("Item","早める時間");
         data2.put("Value","");
         list.add(data2);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
