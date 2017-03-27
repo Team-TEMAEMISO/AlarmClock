@@ -3,6 +3,7 @@ package temaemiso.jp.weatheralarm;
 import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Switch;
@@ -47,7 +49,7 @@ public class MainActivity extends Activity {
 
         createData();
 
-        listView.setAdapter(new SimpleAdapter(this,list,R.layout.listview_alarm,
+        listView.setAdapter(new SwitchAdapter(this,list,R.layout.listview_alarm,
                 new String[]{"Timer",
                         "SunnyView",
                         "SunnyNumber",
@@ -67,28 +69,42 @@ public class MainActivity extends Activity {
                         R.id.RainyNumber,
                         R.id.SnowyView,
                         R.id.SnowyNumber,
-                        R.id.switch1}));
+                        R.id.switch1}
+                ,R.id.switch1));
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivityForResult(new Intent(MainActivity.this,SettingsActivity.class),1);
+                if(view instanceof CompoundButton){
+                    Toast.makeText(MainActivity.this,view.getTag().toString(),Toast.LENGTH_LONG);
+                }else {
+                    startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
+                }
             }
         });
+
+//        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                Toast.makeText(MainActivity.this,switch1.getTag().toString(),Toast.LENGTH_LONG);
+//            }
+//        });
     }
 
     private void createData() {
         for(int n=0;n<5;n++){
+            SharedPreferences pref = getSharedPreferences("setting" + String.valueOf(n),MODE_PRIVATE);
             HashMap<String,Object> data = new HashMap<String,Object>();
-            data.put("Timer","AM11:59");
+            data.put("Timer",String.valueOf(pref.getInt("Hour",7)) + ":" + String.format("%02d", pref.getInt("Minute",0)));
             data.put("SunnyView",R.mipmap.ic_launcher);
-            data.put("SunnyNumber","0");
+            data.put("SunnyNumber",pref.getInt("Sunny",0));
             data.put("CloudyView",R.mipmap.ic_launcher);
-            data.put("CloudyNumber",n);
+            data.put("CloudyNumber",pref.getInt("Cloudy",0));
             data.put("RainyView",R.mipmap.ic_launcher);
-            data.put("RainyNumber","15");
+            data.put("RainyNumber",pref.getInt("Rainy",0));
             data.put("SnowyView",R.mipmap.ic_launcher);
-            data.put("SnowyNumber","30");
+            data.put("SnowyNumber",pref.getInt("Snowy",0));
             data.put("Switch",true);
             list.add(data);
         }
