@@ -1,6 +1,7 @@
 package temaemiso.jp.weatheralarm;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
@@ -26,6 +27,10 @@ public class SettingsActivity extends AppCompatActivity implements RoopSettingFr
     HashMap<String,String> data2;
     SimpleAdapter adapter;
     boolean[] weekday = new boolean[7];
+    public int sunny = 0;
+    public int cloudy = 0;
+    public int rainy = 0;
+    public int snowy = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +41,8 @@ public class SettingsActivity extends AppCompatActivity implements RoopSettingFr
         Button save = (Button)findViewById(R.id.save);
         ListView listView = (ListView)findViewById(R.id.listView2);
         final TimePicker picker = (TimePicker)findViewById(R.id.timePicker);
-        final SharedPreferences pref = getSharedPreferences("settings1",MODE_PRIVATE);
+        Intent intent = getIntent();
+        final SharedPreferences pref = getSharedPreferences("settings" + intent.getStringExtra("Number"),MODE_PRIVATE);
 
         picker.setHour(pref.getInt("Hour",7));
         picker.setMinute(pref.getInt("Minute",0));
@@ -47,6 +53,10 @@ public class SettingsActivity extends AppCompatActivity implements RoopSettingFr
         weekday[4] = pref.getBoolean("Thursday",true);
         weekday[5] = pref.getBoolean("Friday",true);
         weekday[6] = pref.getBoolean("Saturday",true);
+        sunny = pref.getInt("Sunny",0);
+        cloudy = pref.getInt("Cloudy",0);
+        rainy = pref.getInt("Rainy",0);
+        snowy = pref.getInt("Snowy",0);
 
         createData();
 
@@ -104,7 +114,14 @@ public class SettingsActivity extends AppCompatActivity implements RoopSettingFr
                     );
                     listDlg.create().show();
                 }else if(position == 1){
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("Sunny",sunny);
+                    bundle.putInt("Cloudy",cloudy);
+                    bundle.putInt("Rainy",rainy);
+                    bundle.putInt("Snowy",snowy);
+
                     Fragment fragment = new RoopSettingFragment();
+                    fragment.setArguments(bundle);
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.add(R.id.contents, fragment);
                     fragmentTransaction.addToBackStack(null);
@@ -115,6 +132,7 @@ public class SettingsActivity extends AppCompatActivity implements RoopSettingFr
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(RESULT_CANCELED);
                 SettingsActivity.this.finish();
             }
         });
@@ -131,7 +149,12 @@ public class SettingsActivity extends AppCompatActivity implements RoopSettingFr
                 editor.putBoolean("Thursday",weekday[4]);
                 editor.putBoolean("Friday",weekday[5]);
                 editor.putBoolean("Saturday",weekday[6]);
+                editor.putInt("Sunny",sunny);
+                editor.putInt("Cloudy",cloudy);
+                editor.putInt("Rainy",rainy);
+                editor.putInt("Snowy",snowy);
                 editor.commit();
+                setResult(RESULT_OK);
                 SettingsActivity.this.finish();
             }
         });

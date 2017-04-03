@@ -31,6 +31,39 @@ public class MainActivity extends Activity {
     ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK){
+            ListView listView = (ListView)findViewById(R.id.listView);
+
+            list.clear();
+            createData();
+
+            listView.setAdapter(new SwitchAdapter(this,list,R.layout.listview_alarm,
+                    new String[]{"Timer",
+                            "SunnyView",
+                            "SunnyNumber",
+                            "CloudyView",
+                            "CloudyNumber",
+                            "RainyView",
+                            "RainyNumber",
+                            "SnowyView",
+                            "SnowyNumber",
+                            "Switch"},
+                    new int[]{R.id.Timer,
+                            R.id.SunnyView,
+                            R.id.SunnyNumber,
+                            R.id.CloudyView,
+                            R.id.CloudyNumber,
+                            R.id.RainyView,
+                            R.id.RainyNumber,
+                            R.id.SnowyView,
+                            R.id.SnowyNumber,
+                            R.id.switch1}
+                    ,R.id.switch1));
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -76,9 +109,17 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(view instanceof CompoundButton){
-                    Toast.makeText(MainActivity.this,view.getTag().toString(),Toast.LENGTH_LONG);
+                    SharedPreferences pref = getSharedPreferences("settings" + String.valueOf(position + 1),MODE_PRIVATE);
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean("Alarm",((CompoundButton) view).isChecked());
+                    editor.commit();
+                    if(((CompoundButton) view).isChecked()) {
+                        setAlarm(position + 1);
+                    }
                 }else {
-                    startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    intent.putExtra("Number",String.valueOf(position + 1));
+                    startActivityForResult(intent, 1);
                 }
             }
         });
@@ -92,9 +133,160 @@ public class MainActivity extends Activity {
 //        });
     }
 
+    private void setAlarm(int i) {
+
+            Intent intent = new Intent(getApplicationContext(), WeatherService.class);
+            intent.putExtra("intentId", 1);
+            // PendingIntentが同じ物の場合は上書きされてしまうので requestCode で区別する
+            PendingIntent pending = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
+
+            // アラームをセットする
+            AlarmManager am = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
+
+        SharedPreferences pref = getSharedPreferences("settings" + String.valueOf(i),MODE_PRIVATE);
+            if(pref.getBoolean("Sunday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week - 1;
+                if(targetday <= 0) targetday += 7;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+
+            if(pref.getBoolean("Monday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week - 2;
+                if(targetday <= 0) targetday += 7;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+
+            if(pref.getBoolean("Tuesday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week - 3;
+                if(targetday <= 0) targetday += 7;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+
+            if(pref.getBoolean("Wednesday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week - 4;
+                if(targetday <= 0) targetday += 7;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+
+            if(pref.getBoolean("Thursday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week - 5;
+                if(targetday <= 0) targetday += 7;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+
+            if(pref.getBoolean("Friday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week - 6;
+                if(targetday <= 0) targetday += 7;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+
+            if(pref.getBoolean("Saturday",true)){
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+                int targetday = week;
+
+                calendar.add(Calendar.DAY_OF_MONTH, targetday);
+                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
+                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+                calendar.set(Calendar.SECOND,0);
+
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+                // トーストで設定されたことをを表示
+                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+            }
+    }
+
     private void createData() {
-        for(int n=0;n<5;n++){
-            SharedPreferences pref = getSharedPreferences("setting" + String.valueOf(n),MODE_PRIVATE);
+        for(int n=1;n<=5;n++){
+            SharedPreferences pref = getSharedPreferences("settings" + String.valueOf(n),MODE_PRIVATE);
             HashMap<String,Object> data = new HashMap<String,Object>();
             data.put("Timer",String.valueOf(pref.getInt("Hour",7)) + ":" + String.format("%02d", pref.getInt("Minute",0)));
             data.put("SunnyView",R.mipmap.sun);
@@ -105,10 +297,12 @@ public class MainActivity extends Activity {
             data.put("RainyNumber",pref.getInt("Rainy",0));
             data.put("SnowyView",R.mipmap.snow);
             data.put("SnowyNumber",pref.getInt("Snowy",0));
-            data.put("Switch",true);
+            data.put("Switch",pref.getBoolean("Alarm",false));
             list.add(data);
         }
     }
+
+
 
 //    @Override
 //    protected void onDestroy() {

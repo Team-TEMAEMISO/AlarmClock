@@ -73,19 +73,24 @@ public class RoopSettingFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         //フラグメントからIDを取得する方法
+        Bundle bundle = getArguments();
         View view = inflater.inflate(R.layout.fragment_wether_setting, container, false);
         numPicker1 = (NumberPicker)view.findViewById(R.id.numPicker1);
         numPicker1.setMaxValue(99);
         numPicker1.setMinValue(0);
+        numPicker1.setValue(bundle.getInt("Sunny"));
         numPicker2 = (NumberPicker)view.findViewById(R.id.numPicker2);
         numPicker2.setMaxValue(99);
         numPicker2.setMinValue(0);
+        numPicker2.setValue(bundle.getInt("Cloudy"));
         numPicker3 = (NumberPicker)view.findViewById(R.id.numPicker3);
         numPicker3.setMaxValue(99);
         numPicker3.setMinValue(0);
+        numPicker3.setValue(bundle.getInt("Rainy"));
         numPicker4 = (NumberPicker)view.findViewById(R.id.numPicker4);
         numPicker4.setMaxValue(99);
         numPicker4.setMinValue(0);
+        numPicker4.setValue(bundle.getInt("Snowy"));
 
 
         return view;
@@ -128,5 +133,15 @@ public class RoopSettingFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        SettingsActivity activity = ((SettingsActivity)getContext());
+        activity.sunny = numPicker1.getValue();
+        activity.cloudy = numPicker2.getValue();
+        activity.rainy = numPicker3.getValue();
+        activity.snowy = numPicker4.getValue();
     }
 }
