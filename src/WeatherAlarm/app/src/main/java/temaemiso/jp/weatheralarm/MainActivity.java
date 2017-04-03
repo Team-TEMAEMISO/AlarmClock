@@ -97,13 +97,13 @@ public class MainActivity extends Activity {
             SharedPreferences pref = getSharedPreferences("setting" + String.valueOf(n),MODE_PRIVATE);
             HashMap<String,Object> data = new HashMap<String,Object>();
             data.put("Timer",String.valueOf(pref.getInt("Hour",7)) + ":" + String.format("%02d", pref.getInt("Minute",0)));
-            data.put("SunnyView",R.mipmap.ic_launcher);
+            data.put("SunnyView",R.mipmap.sun);
             data.put("SunnyNumber",pref.getInt("Sunny",0));
-            data.put("CloudyView",R.mipmap.ic_launcher);
+            data.put("CloudyView",R.mipmap.cloud);
             data.put("CloudyNumber",pref.getInt("Cloudy",0));
-            data.put("RainyView",R.mipmap.ic_launcher);
+            data.put("RainyView",R.mipmap.rain);
             data.put("RainyNumber",pref.getInt("Rainy",0));
-            data.put("SnowyView",R.mipmap.ic_launcher);
+            data.put("SnowyView",R.mipmap.snow);
             data.put("SnowyNumber",pref.getInt("Snowy",0));
             data.put("Switch",true);
             list.add(data);
