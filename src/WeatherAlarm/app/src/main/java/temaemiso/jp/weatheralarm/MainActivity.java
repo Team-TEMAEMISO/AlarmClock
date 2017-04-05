@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class MainActivity extends Activity {
 
@@ -135,153 +136,198 @@ public class MainActivity extends Activity {
 
     private void setAlarm(int i) {
 
-            Intent intent = new Intent(getApplicationContext(), WeatherService.class);
-            intent.putExtra("intentId", 1);
-            // PendingIntentが同じ物の場合は上書きされてしまうので requestCode で区別する
-            PendingIntent pending = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
+        Intent intent = new Intent(getApplicationContext(), AlarmBroadcastReceiver.class);
+        // PendingIntentが同じ物の場合は上書きされてしまうので requestCode で区別する
+        PendingIntent pending = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 
-            // アラームをセットする
-            AlarmManager am = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
+        // アラームをセットする
+        AlarmManager am = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
 
-        SharedPreferences pref = getSharedPreferences("settings" + String.valueOf(i),MODE_PRIVATE);
-            if(pref.getBoolean("Sunday",true)){
+        //this.startActivity(new Intent(getApplicationContext(), AlarmNortificationActivity.class));
+        TimeZone tz = TimeZone.getTimeZone("Asia/Tokyo");
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.setTimeZone(tz);
+        calendar1.setTimeInMillis(System.currentTimeMillis());
+        calendar1.add(Calendar.SECOND, 10);
+        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar1.getTimeInMillis(), 10000, pending);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        SharedPreferences pref = getSharedPreferences("settings" + String.valueOf(i), MODE_PRIVATE);
+        int setHour = pref.getInt("Hour", 0);
+        int setMinute = pref.getInt("Minute", 0);
+        if (pref.getBoolean("Sunday", true)) {
 
-                int targetday = week - 1;
-                if(targetday <= 0) targetday += 7;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week - 1;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
 
-            if(pref.getBoolean("Monday",true)){
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (pref.getBoolean("Monday", true)) {
 
-                int targetday = week - 2;
-                if(targetday <= 0) targetday += 7;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week - 2;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
 
-            if(pref.getBoolean("Tuesday",true)){
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (pref.getBoolean("Tuesday", true)) {
 
-                int targetday = week - 3;
-                if(targetday <= 0) targetday += 7;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week - 3;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
 
-            if(pref.getBoolean("Wednesday",true)){
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (pref.getBoolean("Wednesday", true)) {
 
-                int targetday = week - 4;
-                if(targetday <= 0) targetday += 7;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week - 4;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
 
-            if(pref.getBoolean("Thursday",true)){
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (pref.getBoolean("Thursday", true)) {
 
-                int targetday = week - 5;
-                if(targetday <= 0) targetday += 7;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week - 5;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
 
-            if(pref.getBoolean("Friday",true)){
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (pref.getBoolean("Friday", true)) {
 
-                int targetday = week - 6;
-                if(targetday <= 0) targetday += 7;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week - 6;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
 
-            if(pref.getBoolean("Saturday",true)){
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                int week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (pref.getBoolean("Saturday", true)) {
 
-                int targetday = week;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
 
-                calendar.add(Calendar.DAY_OF_MONTH, targetday);
-                calendar.set(Calendar.HOUR_OF_DAY,pref.getInt("Hour",0));
-                calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
-                calendar.set(Calendar.SECOND,0);
+            int targetday = week;
+            if (targetday <= -1 ||
+                    (targetday == 0 && setHour < hour) ||
+                    (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+            calendar.setTimeZone(tz);
+            calendar.add(Calendar.DAY_OF_MONTH, targetday);
+            calendar.set(Calendar.HOUR_OF_DAY, setHour);
+            calendar.set(Calendar.MINUTE, setMinute);
+            calendar.set(Calendar.SECOND, 0);
 
-                // トーストで設定されたことをを表示
-                Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
-            }
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+            // トーストで設定されたことをを表示
+            Toast.makeText(getApplicationContext(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void createData() {

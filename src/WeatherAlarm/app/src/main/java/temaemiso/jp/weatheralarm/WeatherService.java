@@ -101,38 +101,45 @@ public class WeatherService extends Service implements LocationListener {
             JSONObject jsonObject = new JSONObject(data);
             String weather = jsonObject.getJSONArray("list").getJSONObject(0).getJSONArray("weather").getJSONObject(0).getString("icon");
             Log.v("VERBOSE", weather);
-
-            SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+            SharedPreferences pref = getSharedPreferences("settings1",MODE_PRIVATE);
 
             int minute;
+            Weather weather1;
             if(weather.equals("01n")){
                 Log.v("VERBOSE","晴れ");
                 minute = pref.getInt("Sunny",0);
+                weather1 = Weather.sunny;
             }else if(weather.equals("02n") || weather.equals("03n") || weather.equals("04n") || weather.equals("50n")){
                 Log.v("VERBOSE","曇り");
                 minute = pref.getInt("Cloudy",0);
+                weather1 = Weather.cloudiness;
             }else if(weather.equals("13n")){
                 Log.v("VERBOSE","雪");
                 minute = pref.getInt("Snowy",0);
+                weather1 = Weather.snow;
             }else{
                 Log.v("VERBOSE","雨");
                 minute = pref.getInt("Rainy",0);
+                weather1 = Weather.rain;
             }
 
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            // 5秒後に設定
-            calendar.add(Calendar.SECOND, 5);
+            calendar.set(Calendar.HOUR,pref.getInt("Hour",0));
+            calendar.set(Calendar.MINUTE,pref.getInt("Minute",0));
+            calendar.set(Calendar.SECOND,0);
+
+            // 設定値分前の時刻を設定する
+            calendar.add(Calendar.MINUTE, -minute);
 
             Intent intent = new Intent(getApplicationContext(), AlarmBroadcastReceiver.class);
-            intent.putExtra("intentId", 1);
+            intent.putExtra("Weather", weather1);
             // PendingIntentが同じ物の場合は上書きされてしまうので requestCode で区別する
             PendingIntent pending = PendingIntent.getBroadcast(getApplicationContext(), 2, intent, 0);
 
             // アラームをセットする
             AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-            // 約10秒で 繰り返し
-            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), /*1000 * 60 * 60 * 24 * 7*/10000, pending);
+
+            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pending);
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
