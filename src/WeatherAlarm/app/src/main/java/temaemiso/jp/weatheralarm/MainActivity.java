@@ -143,13 +143,13 @@ public class MainActivity extends Activity {
         // アラームをセットする
         AlarmManager am = (AlarmManager) MainActivity.this.getSystemService(ALARM_SERVICE);
 
-        //this.startActivity(new Intent(getApplicationContext(), AlarmNortificationActivity.class));
-        TimeZone tz = TimeZone.getTimeZone("Asia/Tokyo");
-        Calendar calendar1 = Calendar.getInstance();
-        calendar1.setTimeZone(tz);
-        calendar1.setTimeInMillis(System.currentTimeMillis());
-        calendar1.add(Calendar.SECOND, 10);
-        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar1.getTimeInMillis(), 10000, pending);
+//        //this.startActivity(new Intent(getApplicationContext(), AlarmNortificationActivity.class));
+//        TimeZone tz = TimeZone.getTimeZone("Asia/Tokyo");
+//        Calendar calendar1 = Calendar.getInstance();
+//        calendar1.setTimeZone(tz);
+//        calendar1.setTimeInMillis(System.currentTimeMillis());
+//        calendar1.add(Calendar.SECOND, 10);
+//        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar1.getTimeInMillis(), 10000, pending);
 
         SharedPreferences pref = getSharedPreferences("settings" + String.valueOf(i), MODE_PRIVATE);
         int setHour = pref.getInt("Hour", 0);
@@ -167,7 +167,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
@@ -192,7 +191,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
@@ -217,7 +215,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
@@ -242,7 +239,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
@@ -267,7 +263,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
@@ -292,7 +287,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
@@ -317,7 +311,6 @@ public class MainActivity extends Activity {
                     (targetday == 0 && setHour < hour) ||
                     (targetday == 0 && setHour == hour && setMinute <= minute)) targetday += 7;
 
-            calendar.setTimeZone(tz);
             calendar.add(Calendar.DAY_OF_MONTH, targetday);
             calendar.set(Calendar.HOUR_OF_DAY, setHour);
             calendar.set(Calendar.MINUTE, setMinute);
